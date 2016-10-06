@@ -122,8 +122,8 @@ Jobs resource. Here are the highlights of what's in this release:
 
 ### Changed:
 
-- [Removed the physicaName lookup for the logical metric name](https://github.com/yahoo/fili/pull/55)
-  * Updated `TableUtils::getColumnNames`
+- Removed `physicalName` lookup for metrics in `TableUtils::getColumnNames` to remove spurious warnings
+     * Metrics are not mapped like dimensions are
 
 #### Jobs:
 

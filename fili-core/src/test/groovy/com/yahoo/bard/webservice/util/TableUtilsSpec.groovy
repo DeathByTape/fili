@@ -85,10 +85,21 @@ class TableUtilsSpec extends  Specification {
         request.filterDimensions >> ds1
         query.metricDimensions >> ds1
         query.dependentFieldNames >> ([metric1, metric2, metric3] as Set)
-        PhysicalTable physicalTable = new PhysicalTable("", DefaultTimeGrain.DAY.buildZonedTimeGrain(DateTimeZone.UTC), [:])
+
+        expect:
+        TableUtils.getColumnNames(request, query, new PhysicalTable("", DefaultTimeGrain.DAY.buildZonedTimeGrain(DateTimeZone.UTC), [:])) == [d1Name, metric1, metric2, metric3] as Set
+    }
+
+    def "logicalName to physicalName mapping not required for metrics" () {
+        setup:
+        request.dimensions >> []
+        request.filterDimensions >> []
+        query.metricDimensions >> []
+        query.dependentFieldNames >> ([metric1] as Set)
+        PhysicalTable physicalTable = Mock(PhysicalTable)
         0 * physicalTable.getPhysicalColumnName(_)
 
         expect:
-        TableUtils.getColumnNames(request, query, physicalTable) == [d1Name, metric1, metric2, metric3] as Set
+        TableUtils.getColumnNames(request, query, physicalTable) == [metric1] as Set
     }
 }
