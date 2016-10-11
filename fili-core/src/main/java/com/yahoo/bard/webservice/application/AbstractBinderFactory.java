@@ -100,7 +100,6 @@ import com.codahale.metrics.health.HealthCheck;
 import com.codahale.metrics.health.HealthCheckRegistry;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.apache.commons.collections.map.HashedMap;
 import org.glassfish.hk2.api.TypeLiteral;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -938,7 +937,7 @@ public abstract class AbstractBinderFactory implements BinderFactory {
      * @return A DruidWebService
      */
     protected DruidWebService buildDruidWebService(DruidServiceConfig druidServiceConfig, ObjectMapper mapper) {
-        return new AsyncDruidWebServiceImpl(druidServiceConfig, mapper, HashedMap::new);
+        return new AsyncDruidWebServiceImpl(druidServiceConfig, mapper, HashMap::new);
     }
 
     /**

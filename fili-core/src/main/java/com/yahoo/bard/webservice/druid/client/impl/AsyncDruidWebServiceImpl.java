@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
@@ -63,7 +64,7 @@ public class AsyncDruidWebServiceImpl implements DruidWebService {
     public static final String DRUID_WEIGHTED_QUERY_TIMER = DRUID_TIMER + "_W_";
     public static final String DRUID_SEGMENT_METADATA_TIMER = DRUID_TIMER + "_S_0";
 
-    private final Supplier<Map<String, String>> authHeaders;
+    private final Supplier<Map<String, String>> anyHeaders;
     private final DruidServiceConfig serviceConfig;
 
     /**
@@ -72,10 +73,27 @@ public class AsyncDruidWebServiceImpl implements DruidWebService {
      * @param serviceConfig  Configuration for the Druid Service
      * @param mapper  A shared jackson object mapper resource
      */
-    public AsyncDruidWebServiceImpl(DruidServiceConfig serviceConfig, ObjectMapper mapper,
-            Supplier<Map<String, String>> authHeaders
+    @Deprecated
+    public AsyncDruidWebServiceImpl(
+            DruidServiceConfig serviceConfig,
+            ObjectMapper mapper
     ) {
-        this(serviceConfig, initializeWebClient(serviceConfig.getTimeout()), mapper, authHeaders);
+        this(serviceConfig, initializeWebClient(serviceConfig.getTimeout()), mapper, HashMap::new);
+    }
+
+    /**
+     * Friendly non-DI constructor useful for manual tests.
+     *
+     * @param serviceConfig  Configuration for the Druid Service
+     * @param mapper  A shared jackson object mapper resource
+     * @param anyHeaders Supplier for map of headers for Druid requests
+     */
+    public AsyncDruidWebServiceImpl(
+            DruidServiceConfig serviceConfig,
+            ObjectMapper mapper,
+            Supplier<Map<String, String>> anyHeaders
+    ) {
+        this(serviceConfig, initializeWebClient(serviceConfig.getTimeout()), mapper, anyHeaders);
     }
 
     /**
@@ -106,8 +124,28 @@ public class AsyncDruidWebServiceImpl implements DruidWebService {
      * @param asyncHttpClient  the HTTP client
      * @param mapper  A shared jackson object mapper resource
      */
-    public AsyncDruidWebServiceImpl(DruidServiceConfig config, AsyncHttpClient asyncHttpClient, ObjectMapper mapper,
-            Supplier<Map<String, String>> authHeaders
+    @Deprecated
+    public AsyncDruidWebServiceImpl(
+            DruidServiceConfig config,
+            AsyncHttpClient asyncHttpClient,
+            ObjectMapper mapper
+    ) {
+        this(config, asyncHttpClient, mapper, HashMap::new);
+    }
+
+    /**
+     * IOC constructor.
+     *
+     * @param config  the configuration for this druid service
+     * @param asyncHttpClient  the HTTP client
+     * @param mapper  A shared jackson object mapper resource
+     * @param anyHeaders Supplier for map of headers for Druid requests
+     */
+    public AsyncDruidWebServiceImpl(
+            DruidServiceConfig config,
+            AsyncHttpClient asyncHttpClient,
+            ObjectMapper mapper,
+            Supplier<Map<String, String>> anyHeaders
     ) {
         this.serviceConfig = config;
 
@@ -118,7 +156,7 @@ public class AsyncDruidWebServiceImpl implements DruidWebService {
         }
 
         LOG.info("Configured with druid server config: {}", config.toString());
-        this.authHeaders = authHeaders;
+        this.anyHeaders = anyHeaders;
         this.webClient = asyncHttpClient;
         this.writer = mapper.writer();
         this.httpErrorMeter = REGISTRY.meter("druid.errors.http");
@@ -278,7 +316,7 @@ public class AsyncDruidWebServiceImpl implements DruidWebService {
                 .setBody(entityBody)
                 .addHeader("Content-Type", "application/json");
 
-        authHeaders.get().forEach((k,v) -> requestBuilder.addHeader(k, v));
+        anyHeaders.get().forEach((k, v) -> requestBuilder.addHeader(k, v));
 
         LOG.debug("druid json request: {}", entityBody);
         sendRequest(
