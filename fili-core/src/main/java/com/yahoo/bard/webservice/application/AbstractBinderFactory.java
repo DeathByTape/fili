@@ -110,7 +110,6 @@ import rx.subjects.PublishSubject;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.time.Clock;
 import java.time.ZoneId;
 import java.util.Arrays;
@@ -942,6 +941,16 @@ public abstract class AbstractBinderFactory implements BinderFactory {
      * @return A DruidWebService
      */
     protected DruidWebService buildDruidWebService(DruidServiceConfig druidServiceConfig, ObjectMapper mapper) {
+        Supplier<Map<String, String>> supplier = buildDruidWebServiceHeaderSupplier();
+        return new AsyncDruidWebServiceImpl(druidServiceConfig, mapper, supplier);
+    }
+
+    /**
+     * Build the Supplier for Druid data request headers.
+     *
+     * @return The Druid data request header Supplier.
+     */
+    protected Supplier<Map<String, String>> buildDruidWebServiceHeaderSupplier() {
         Supplier<Map<String, String>> supplier = HashMap::new;
         String customSupplierClassString = SYSTEM_CONFIG.getStringProperty(DRUID_HEADER_SUPPLIER_CLASS, null);
         if (customSupplierClassString != null && customSupplierClassString != "") {
@@ -949,8 +958,7 @@ public abstract class AbstractBinderFactory implements BinderFactory {
                 Class<?> c = Class.forName(customSupplierClassString);
                 Constructor<?> constructor = c.getConstructor();
                 supplier = (Supplier<Map<String, String>>) constructor.newInstance();
-            } catch (ClassNotFoundException | NoSuchMethodException |
-                    IllegalAccessException | InstantiationException | InvocationTargetException e) {
+            } catch (Exception e) {
                 LOG.error(
                         "Unable to load the Druid query header supplier, className: {}, exception: {}",
                         customSupplierClassString,
@@ -959,7 +967,7 @@ public abstract class AbstractBinderFactory implements BinderFactory {
                 throw new IllegalStateException(e);
             }
         }
-        return new AsyncDruidWebServiceImpl(druidServiceConfig, mapper, supplier);
+        return supplier;
     }
 
     /**

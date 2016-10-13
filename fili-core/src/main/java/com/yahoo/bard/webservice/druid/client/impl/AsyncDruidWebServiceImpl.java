@@ -72,6 +72,8 @@ public class AsyncDruidWebServiceImpl implements DruidWebService {
      *
      * @param serviceConfig  Configuration for the Druid Service
      * @param mapper  A shared jackson object mapper resource
+     * @deprecated We now require a header supplier parameter.
+     *      Use {@link #AsyncDruidWebServiceImpl(DruidServiceConfig, ObjectMapper, Supplier)}
      */
     @Deprecated
     public AsyncDruidWebServiceImpl(
@@ -123,6 +125,8 @@ public class AsyncDruidWebServiceImpl implements DruidWebService {
      * @param config  the configuration for this druid service
      * @param asyncHttpClient  the HTTP client
      * @param mapper  A shared jackson object mapper resource
+     * @deprecated  We now require a header supplier parameter.
+     *      Use {@link #AsyncDruidWebServiceImpl(DruidServiceConfig, AsyncHttpClient, ObjectMapper, Supplier)}
      */
     @Deprecated
     public AsyncDruidWebServiceImpl(
