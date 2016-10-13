@@ -10,9 +10,15 @@ Current
 
 ### Added:
 
+- [Support for Druid's In Filter](https://github.com/yahoo/fili/pull/64)
+
 - [Documentation for topN](https://github.com/yahoo/fili/pull/43)
 
 ### Changed:
+
+- [Cleaned up the type for `DimensionalFilter::withDimension`](https://github.com/yahoo/fili/pull/64)
+    -- Previously, `DimensionalFilter::withDimension` had the signature `public abstract <T> T withDimension(Dimension dimension)`,
+    but `T` is already defined as part of the class type of `DimensionalFilter`. Therefore, `<T>` has been removed.
 
 - [Improves error messages when querying Druid goes wrong](https:://github.com/yahoo/fili/pull/61)
     - The `ResponseException` now includes a message that prints the `ResponseException`'s internal state 
@@ -56,11 +62,6 @@ Current
 
 
 ### Fixed:
-
-- [Cleaned up the type for `DimensionalFilter::withDimension`](https://github.com/yahoo/fili/pull/63)
-    -- Previously, `DimensionalFilter::withDimension` had the signature `public abstract <T> T withDimension(Dimension dimension)`,
-    but `T` is already defined as part of the class type of `DimensionalFilter`. Therefore, `<T>` has been removed.
-
 
 - [Adds read locking to all attempts to read the Lucene index](https://github.com/yahoo/fili/pull/52)
   * Before, if Fili attempted to read from the Lucene indices (i.e. processing a query with filters)
