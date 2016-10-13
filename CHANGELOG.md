@@ -57,6 +57,11 @@ Current
 
 ### Fixed:
 
+- [Cleaned up the type for `DimensionalFilter::withDimension`](https://github.com/yahoo/fili/pull/63)
+    -- Previously, `DimensionalFilter::withDimension` had the signature `public abstract <T> T withDimension(Dimension dimension)`,
+    but `T` is already defined as part of the class type of `DimensionalFilter`. Therefore, `<T>` has been removed.
+
+
 - [Adds read locking to all attempts to read the Lucene index](https://github.com/yahoo/fili/pull/52)
   * Before, if Fili attempted to read from the Lucene indices (i.e. processing a query with filters)
     while loading dimension indices, the request would fail and we would get a
